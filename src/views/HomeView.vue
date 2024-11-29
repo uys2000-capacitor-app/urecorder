@@ -1,16 +1,113 @@
 <template>
-  <div class="hero h-screen w-full -mt-[80px]"
-    style="background-image: url(https://img.daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.webp);">
-    <div class="hero-overlay bg-opacity-60"></div>
-    <div class="hero-content text-neutral-content text-center">
-      <div class="max-w-md">
-        <h1 class="mb-5 text-5xl font-bold">Hello there</h1>
-        <p class="mb-5">
-          Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem
-          quasi. In deleniti eaque aut repudiandae et a id nisi.
-        </p>
-        <button class="btn btn-primary">Get Started</button>
-      </div>
+  <div class="h-page w-full flex flex-col justify-center items-center pt-20">
+    <div class="w-full h-1/2 min-h-20 max-h-96 flex flex-col justify-between items-center">
+      <Bar :status="status" :audio="audio" :duration="timerStore.asString" />
+      <Controller :status="status" :record="record" :audio="audio" @start="start" @stop="stop" @pause="pause"
+        @resume="resume" @remove="remove" @save="save" />
     </div>
   </div>
 </template>
+
+
+<script lang="ts">
+import Bar from '@/components/recorder/Bar.vue';
+import Controller from '@/components/recorder/Controller.vue';
+import { writeFile } from '@/services/capacitor/filesystem';
+import { addNotificationListener, checkManageOverlayPermission, checkPermissions, moveToForeground, removeAllListeners, requestManageOverlayPermission, requestPermissions, startForegroundService, stopForegroundService } from '@/services/capacitor/foreground';
+import { canDeviceVoiceRecord, getAudioString, getCurrentStatus, hasAudioRecordingPermission, pauseRecording, requestAudioRecordingPermission, resumeRecording, startRecording, stopRecording, type RecordingDataValue } from '@/services/capacitor/recorder';
+import { useAppStore } from '@/stores/app';
+import { useTimerStore } from '@/stores/timer';
+import { Capacitor } from '@capacitor/core';
+
+export default {
+  components: {
+    Bar,
+    Controller
+  },
+  data() {
+    return {
+      appStore: useAppStore(),
+      timerStore: useTimerStore(),
+      status: "NONE" as "RECORDING" | "PAUSED" | "NONE",
+      record: null as null | RecordingDataValue,
+      audio: "",
+    }
+  },
+  methods: {
+    async startRecording() {
+      if (!await canDeviceVoiceRecord.uLog()) return false;
+
+      if (!await hasAudioRecordingPermission.uLog() && !await requestAudioRecordingPermission.uLog())
+        return false
+
+      return await startRecording.uLog()
+    },
+    async startForeground() {
+      if (!await checkPermissions.uLog() && !await requestPermissions.uLog()) return false
+      const options = {
+        buttons: [{ id: 1, title: 'Stop' }],
+        body: 'You can stop the recording',
+        title: 'Recording...',
+        id: 12398473,
+        smallIcon: 'push_icon',
+      }
+      const result = await startForegroundService(options)
+      return result
+    },
+    async start() {
+      this.record = null;
+      this.audio = ""
+      await this.startRecording()
+      if (Capacitor.getPlatform() == "web" || await this.startForeground.uLog()) {
+        this.timerStore.clear()
+        this.timerStore.start()
+        this.status = "RECORDING";
+      } else stopRecording.uLog()
+
+    },
+    async stop() {
+      this.record = await stopRecording.uLog()
+      if (Capacitor.getPlatform() != "web")
+        stopForegroundService.uLog().catch(() => "")
+      if (this.record) {
+        this.audio = getAudioString(this.record)
+        this.timerStore.stop()
+        this.status = "NONE";
+      }
+    },
+    async pause() {
+      await pauseRecording()
+      this.timerStore.stop()
+      this.status = "PAUSED";
+    },
+    async resume() {
+      await resumeRecording()
+      this.timerStore.start()
+      this.status = "RECORDING";
+    },
+    async remove() {
+      this.record = null
+      this.audio = ""
+      this.timerStore.clear()
+    },
+    async save() {
+      if (!this.record) return
+      const date = new Date()
+      const dateText = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+      const timeText = `${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}`
+      const extension = this.record.mimeType.split("/")[1].split(";")[0]
+      const file = `Record ${dateText} ${timeText}.${extension}`
+      await writeFile(file, this.record.recordDataBase64)
+      this.appStore.addToast({ message: `Saved as "${file}"`, id: Date.now(), timeout: 2000 })
+      this.record = null
+    }
+  },
+  async mounted() {
+    this.status = await getCurrentStatus()
+    if (Capacitor.getPlatform() == "web") {
+      removeAllListeners()
+      addNotificationListener(e => this.stop())
+    }
+  },
+}
+</script>

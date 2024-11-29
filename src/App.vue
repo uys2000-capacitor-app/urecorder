@@ -11,6 +11,17 @@ import { RouterView } from 'vue-router'
 export default {
   components: {
     RouterView
+  },
+  methods: {
+    setTheme(theme: string) {
+      localStorage.setItem("theme", theme);
+      document.body.setAttribute("data-theme", theme);
+    },
+  },
+  beforeMount() {
+    const theme = localStorage.getItem("theme");
+    if (theme) this.setTheme(theme)
+
   }
 }
 </script>

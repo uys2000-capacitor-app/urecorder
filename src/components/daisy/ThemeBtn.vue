@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :index="1" class="dropdown-end">
+  <Dropdown :index="1" class="dropdown-end h-8">
     <template #title>
       <button class="w-full h-full flex gap-0 rounded-btn p-0 overflow-hidden">
         <div class="w-2 h-full bg-base-100"></div>
