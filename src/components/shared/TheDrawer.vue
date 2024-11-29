@@ -7,7 +7,7 @@
       <ul class="menu bg-base-200 rounded-box w-full p-0 m-0 gap-1">
         <li class="bg-base-100"><a href="https://urecorder.mehmetuysal.dev">Web Page</a></li>
         <li class="bg-base-100"><a href="https://urecorder.mehmetuysal.dev/privacy">Privacy Policy</a></li>
-        <li class="bg-base-100"><a href="https://">Source Code</a></li>
+        <li class="bg-base-100"><a href="https://github.com/uys2000-projects/URecorder">Source Code</a></li>
       </ul>
       <div class="divider"></div>
       <div>Developer Info</div>
