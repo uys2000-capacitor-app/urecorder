@@ -4,6 +4,7 @@
       <Bar :status="status" :audio="audio" :duration="timerStore.asString" />
       <Controller :status="status" :record="record" :audio="audio" @start="start" @stop="stop" @pause="pause"
         @resume="resume" @remove="remove" @save="save" />
+      <a ref="download" download style="display: none;"></a>
     </div>
   </div>
 </template>
@@ -57,13 +58,15 @@ export default {
     async start() {
       this.record = null;
       this.audio = ""
-      await this.startRecording()
-      if (Capacitor.getPlatform() == "web" || await this.startForeground.uLog()) {
-        this.timerStore.clear()
-        this.timerStore.start()
-        this.status = "RECORDING";
-      } else stopRecording.uLog()
-
+      if (await this.startRecording())
+        if (Capacitor.getPlatform() == "web" || await this.startForeground.uLog()) {
+          this.timerStore.clear()
+          this.timerStore.start()
+          this.status = "RECORDING";
+        } else stopRecording.uLog()
+      else {
+        this.appStore.addToast({ message: "Failed to start recording", id: Date.now(), timeout: 2000 })
+      }
     },
     async stop() {
       this.record = await stopRecording.uLog()
@@ -97,7 +100,14 @@ export default {
       const timeText = `${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}`
       const extension = this.record.mimeType.split("/")[1].split(";")[0]
       const file = `Record ${dateText} ${timeText}.${extension}`
-      await writeFile(file, this.record.recordDataBase64)
+      if (Capacitor.getPlatform() == "web") {
+        const link = this.$refs.download as HTMLAnchorElement
+        link.href = getAudioString(this.record)
+        link.download = file
+        link.click()
+      } else {
+        await writeFile(file, this.record.recordDataBase64)
+      }
       this.appStore.addToast({ message: `Saved as "${file}"`, id: Date.now(), timeout: 2000 })
       this.record = null
     }
