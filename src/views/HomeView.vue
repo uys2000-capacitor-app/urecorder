@@ -106,7 +106,8 @@ export default {
         link.download = file
         link.click()
       } else {
-        await writeFile(file, this.record.recordDataBase64)
+        if (this.record.recordDataBase64)
+          await writeFile(file, this.record.recordDataBase64)
       }
       this.appStore.addToast({ message: `Saved as "${file}"`, id: Date.now(), timeout: 2000 })
       this.record = null

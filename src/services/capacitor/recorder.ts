@@ -1,9 +1,10 @@
 import { VoiceRecorder, type Base64String } from "capacitor-voice-recorder";
 
 export type RecordingDataValue = {
-  recordDataBase64: Base64String;
+  recordDataBase64?: Base64String;
   msDuration: number;
   mimeType: string;
+  uri?: string;
 };
 
 export const canDeviceVoiceRecord = async () => {
