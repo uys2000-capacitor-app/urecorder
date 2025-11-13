@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "877422865549",
+    "project_id": "urecorder-mehmetuysal-dev",
+    "storage_bucket": "urecorder-mehmetuysal-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877422865549:android:2f74f50e3fcd660a08c6c4",
+        "android_client_info": {
+          "package_name": "com.uys2000.urecorder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "877422865549-jmqrjek6vemvta90g726s83ul6hdqro5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uys2000.urecorder",
+            "certificate_hash": "1141d9a7791f1155c82b9f448482358249b76012"
+          }
+        },
+        {
+          "client_id": "877422865549-r5i6n2q0nn7ifu77sfuo0a0cu5rlrhi2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWeWUHdlorh_O073RBEBvI6YVS-J1h7DY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "877422865549-ld57vjo1adsc3ua93t0t4qit3edi5lkb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

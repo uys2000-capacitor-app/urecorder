@@ -1,6 +1,6 @@
 {
-  "name": "vue-template",
-  "version": "0.0.0",
+  "name": "urecorder",
+  "version": "1.3",
   "private": true,
   "type": "module",
   "scripts": {
